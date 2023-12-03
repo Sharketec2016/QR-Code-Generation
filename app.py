@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog
 
 import pyqrcode
+from PIL import Image
 
 
 class MyWindow:
@@ -12,7 +13,14 @@ class MyWindow:
         self.qr_code_versions = [
             "1",
             "2",
-            "3"
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
         ]
 
         self.ecc = [
@@ -43,17 +51,17 @@ class MyWindow:
         self.preview_BUTTON = Button(master=win, text='Preview', command=lambda: self.preview_code())
         self.preview_color_VAL = StringVar()
         self.preview_color_ENTRY = Entry(master=win, textvariable=self.preview_color_VAL, bd=3, width=10)
-        self.preview_color_ENTRY.insert(0, "Ex: #FFFFFF")
+        self.preview_color_ENTRY.insert(0, "#FFFFFF")
         self.preview_color_LABEL = Label(master=win, text='Color')
 
         self.preview_color_border_VAL = StringVar()
         self.preview_color_border_ENTRY = Entry(master=win, textvariable=self.preview_color_border_VAL, bd=3, width=10)
-        self.preview_color_border_ENTRY.insert(0, "Ex: #FFFFFF")
+        self.preview_color_border_ENTRY.insert(0, "#FFFFFF")
         self.preview_color_border_LABEL = Label(master=win, text='Border Color')
 
         self.preview_color_background_VAL = StringVar()
         self.preview_color_background_ENTRY = Entry(master=win, textvariable=self.preview_color_background_VAL, bd=3, width=10)
-        self.preview_color_background_ENTRY.insert(0, "Ex: #FFFFFF")
+        self.preview_color_background_ENTRY.insert(0, "#FFFFFF")
         self.preview_color_background_LABEL = Label(master=win, text='Background Color')
 
         self.insert_image_LABEL = Label(master=win, text='Insert Image')
@@ -106,11 +114,8 @@ class MyWindow:
         self.insert_image_ENTRY.place(x=130, y=260)
         self.insert_image_BUTTON.place(x=200, y=260)
 
-        self.version_LABEL.place(x=20, y=290)
-        self.version_OPTIONS.place(x=130, y=290)
-
-        self.ecc_LABEL.place(x=20, y=330)
-        self.ecc_OPTIONS.place(x=130, y=330)
+        self.ecc_LABEL.place(x=20, y=290)
+        self.ecc_OPTIONS.place(x=130, y=290)
 
         self.preview_qrcode_LABEL.place(x=300, y=170)
         self.preview_qrcode_obj.place(x=300, y=190)
@@ -132,20 +137,56 @@ class MyWindow:
         background_color = self.preview_color_background_ENTRY.get()
         version = self.version_VAL.get()
         ecc = self.ecc_VAL.get().split(" ")[0]
+        print(qrcode_data)
 
-        try:
-            my_qr = pyqrcode.create(qrcode_data, error=ecc, version=int(version))
-            my_qr = my_qr.xbm(scale=5)
-            my_img = BitmapImage(data=my_qr)
-            self.preview_qrcode_obj.config(image=my_img, background=background_color, foreground=data_color)
-        except:
-            self.preview_qrcode_obj.config(text="ERROR : Specified Paremeters are not formatted properly. Please check again.")
+        if qrcode_data == "":
+            qrcode_data = "https://google.com"
+
+        while True:
+            if self.insert_image_ENTRY.get() == "":
+
+                my_qr = pyqrcode.create(qrcode_data, error=ecc)
+                my_qr = my_qr.xbm(scale=5)
+                my_img = BitmapImage(data=my_qr, background=background_color, foreground=data_color)
+                self.preview_qrcode_obj.config(image=my_img)
+                break
+            else:
+
+                my_qr = pyqrcode.QRCode(qrcode_data, error=ecc)
+                my_qr.png("./tmp.png", scale=10, module_color=self.hex_to_rgb(hex=data_color), background=self.hex_to_rgb(hex=background_color))
+
+                im = Image.open("./tmp.png")
+                im = im.convert("RGBA")
+                logo = Image.open(self.insert_image_ENTRY.get())
+                box = (90, 150, 250, 170)
+                im.crop(box)
+                region = logo
+                region = region.resize((box[2] - box[0], box[3] - box[1]))
+                im.paste(region, box)
+                im.show()  # display in console
+                im.save("path", "PNG")
+                my_img = PhotoImage(file="path")
+                self.preview_qrcode_obj.config(image=my_img)  # Show the qr code in Label
+            # except:
+            #     self.insert_image_ENTRY.delete(0)
+            #     pass
+
+
 
     def select_insert_image(self):
         self.insert_image = filedialog.askopenfile()
         self.insert_image_ENTRY.delete(0, END)
         self.insert_image_ENTRY.insert(0, self.insert_image.name)
         return
+
+    def hex_to_rgb(self, hex):
+        hex = hex[1:]
+        rgb = []
+        for i in (0, 2, 4):
+            decimal = int(hex[i:i + 2], 16)
+            rgb.append(decimal)
+        return tuple(rgb)
+
 
 
 window = Tk()
