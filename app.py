@@ -5,6 +5,7 @@ from tkinter import messagebox
 import pyqrcode
 import qrcode
 from PIL import Image
+import os
 
 
 class MyWindow:
@@ -37,6 +38,7 @@ class MyWindow:
             'Q': qrcode.constants.ERROR_CORRECT_Q,
             'H': qrcode.constants.ERROR_CORRECT_H
         }
+        
         self.code_name_FRAME = Frame(master=win).grid_configure(row=0, column=0)
         self.code_name_LABEL = Label(master=self.code_name_FRAME, text="Name of QR Code")
         self.code_name_ENTRY = Entry(master=win, bd=3)
@@ -149,8 +151,11 @@ class MyWindow:
         version = self.version_VAL.get()
         ecc = self.ecc_VAL.get().split(" ")[0]
 
+
         if qrcode_data == "":
             qrcode_data = "https://google.com"
+            return
+
 
         while True:
             if self.insert_image_ENTRY.get() == "":
@@ -161,16 +166,16 @@ class MyWindow:
                 self.preview_qrcode_obj.config(image=my_img)
                 break
             else:
-
+                tmp_save_path = "./tmp.png"
                 my_qr = pyqrcode.QRCode(qrcode_data, error=ecc)
-                my_qr.png("./tmp.png", scale=10, module_color=self.hex_to_rgb(hex=data_color), background=self.hex_to_rgb(hex=background_color))
+                my_qr.png(tmp_save_path, scale=10, module_color=self.hex_to_rgb(hex=data_color), background=self.hex_to_rgb(hex=background_color))
 
-                im = Image.open("./tmp.png")
+                im = Image.open(tmp_save_path)
                 im = im.convert("RGBA")
                 logo = Image.open(self.insert_image_ENTRY.get())
 
                 logo_shape = logo.size
-                qr_shape = Image.open("./tmp.png").size
+                qr_shape = Image.open(tmp_save_path).size
 
                 logo_mid_x = logo_shape[0] // 2
                 logo_mid_y = logo_shape[1] // 2
@@ -191,6 +196,8 @@ class MyWindow:
 
                 self.preview_qrcode_obj.config(image=my_img)  # Show the qr code in Label
                 self.insert_image_ENTRY.delete(0, END)
+                os.remove("./tmp.png")
+                os.remove("./path")
                 break
 
     def select_insert_image(self):
@@ -275,10 +282,15 @@ class MyWindow:
         except:
             messagebox.showerror("Something went wrong. Please make sure all entry's are valid in form and try again")
 
+    def window_exit(self):
+        close = messagebox.askyesno("Exit?", "Are you sure you want to exit?")
+        if close:
+            self.win.destroy()
 
 
 window = Tk()
 mywin = MyWindow(window)
 window.title('Hello Python')
 window.geometry("650x500+10+10")
+# window.protocol("WM_DELETE_WINDOW", mywin.window_exit())
 window.mainloop()
