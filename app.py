@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter.colorchooser import askcolor
 
 import pyqrcode
 import qrcode
@@ -38,7 +39,14 @@ class MyWindow:
             'Q': qrcode.constants.ERROR_CORRECT_Q,
             'H': qrcode.constants.ERROR_CORRECT_H
         }
-        
+
+        self.qrcode_color = "#000000"
+        self.qrcode_Border_Color = "#FFFFFF"
+        self.qrcode_Background_Color = "#FFFFFF"
+
+
+
+
         self.code_name_FRAME = Frame(master=win).grid_configure(row=0, column=0)
         self.code_name_LABEL = Label(master=self.code_name_FRAME, text="Name of QR Code")
         self.code_name_ENTRY = Entry(master=win, bd=3)
@@ -58,20 +66,30 @@ class MyWindow:
         self.data_ENTRY = Entry(master=win, bd=3, textvariable=self.data_VAL)
 
         self.preview_BUTTON = Button(master=win, text='Preview', command=lambda: self.preview_code())
+
+
         self.preview_color_VAL = StringVar()
         self.preview_color_ENTRY = Entry(master=win, textvariable=self.preview_color_VAL, bd=3, width=10)
-        self.preview_color_ENTRY.insert(0, "#000000")
-        self.preview_color_LABEL = Label(master=win, text='Color')
+        self.preview_color_ENTRY.insert(0, self.qrcode_color)
+        # self.preview_color_LABEL = Label(master=win, text='Color')
+        self.preview_color_BUTTON = Button(master=win, text='Color', command=lambda: self.select_color(name="QRCode Color", entry = self.preview_color_ENTRY))
 
         self.preview_color_border_VAL = StringVar()
         self.preview_color_border_ENTRY = Entry(master=win, textvariable=self.preview_color_border_VAL, bd=3, width=10)
-        self.preview_color_border_ENTRY.insert(0, "#FFFFFF")
-        self.preview_color_border_LABEL = Label(master=win, text='Border Color')
-
+        self.preview_color_border_ENTRY.insert(0, self.qrcode_Border_Color)
+        # self.preview_color_border_LABEL = Label(master=win, text='Border Color')
+        self.preview_color_border_BUTTON = Button(master=win, text='Border Color',
+                                           command=lambda: self.select_color(name="QRCode Boarder Color",
+                                                                             entry=self.preview_color_border_ENTRY))
         self.preview_color_background_VAL = StringVar()
         self.preview_color_background_ENTRY = Entry(master=win, textvariable=self.preview_color_background_VAL, bd=3, width=10)
-        self.preview_color_background_ENTRY.insert(0, "#FFFFFF")
-        self.preview_color_background_LABEL = Label(master=win, text='Background Color')
+        self.preview_color_background_ENTRY.insert(0, self.qrcode_Background_Color)
+        # self.preview_color_background_LABEL = Label(master=win, text='Background Color')
+        self.preview_color_background_BUTTON = Button(master=win, text='Background Color',
+                                           command=lambda: self.select_color(name="QRCode Background Color",
+                                                                             entry=self.preview_color_background_ENTRY))
+
+
 
         self.insert_image_LABEL = Label(master=win, text='Insert Image')
         self.insert_image_VAL = StringVar()
@@ -112,14 +130,15 @@ class MyWindow:
         self.data_ENTRY.place(x=160, y=110)
 
         self.preview_BUTTON.place(x=60, y=130)
-        self.preview_color_LABEL.place(x=20, y=170)
+        self.preview_color_BUTTON.place(x=20, y=170)
         self.preview_color_ENTRY.place(x=130, y=170)
 
-        self.preview_color_border_LABEL.place(x=20, y=200)
+        self.preview_color_border_BUTTON.place(x=20, y=200)
         self.preview_color_border_ENTRY.place(x=130, y=200)
 
-        self.preview_color_background_LABEL.place(x=20, y=230)
+        self.preview_color_background_BUTTON.place(x=20, y=230)
         self.preview_color_background_ENTRY.place(x=130, y=230)
+
 
         self.insert_image_LABEL.place(x=20, y=260)
         self.insert_image_ENTRY.place(x=130, y=260)
@@ -213,6 +232,12 @@ class MyWindow:
             decimal = int(hex[i:i + 2], 16)
             rgb.append(decimal)
         return tuple(rgb)
+
+    def select_color(self, name, entry):
+        colors = askcolor(title=name)
+        entry.delete(0, END)
+        entry.insert(0, colors[1])
+
 
     def save_qr_code(self):
         global save_img
