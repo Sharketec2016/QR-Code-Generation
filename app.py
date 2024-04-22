@@ -4,7 +4,6 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter.colorchooser import askcolor
 
-import qrcode
 import segno
 from PIL import Image
 
@@ -26,18 +25,6 @@ class MyWindow:
         self.insert_image = None
         self.win = win
         self.cond = 0
-        self.qr_code_versions = [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            "10"
-        ]
 
         self.ecc = [
             "L -> 7%",
@@ -45,18 +32,13 @@ class MyWindow:
             "Q -> 25%",
             "H -> 30%"
         ]
-        self.ecc_dict = {
-            'L': qrcode.constants.ERROR_CORRECT_L,
-            'M': qrcode.constants.ERROR_CORRECT_M,
-            'Q': qrcode.constants.ERROR_CORRECT_Q,
-            'H': qrcode.constants.ERROR_CORRECT_H
-        }
 
         self.qrcode_color = "#000000"
         self.qrcode_Border_Color = "#FFFFFF"
         self.qrcode_Background_Color = "#FFFFFF"
 
         self.qrcode = QRCODE()
+        self.qrcode.__int__()
 
         self.code_name_FRAME = Frame(master=win).grid_configure(row=0, column=0)
         self.code_name_LABEL = Label(master=self.code_name_FRAME, text="Name of QR Code")
@@ -81,7 +63,6 @@ class MyWindow:
         self.preview_color_VAL = StringVar()
         self.preview_color_ENTRY = Entry(master=win, textvariable=self.preview_color_VAL, bd=3, width=10)
         self.preview_color_ENTRY.insert(0, self.qrcode_color)
-        # self.preview_color_LABEL = Label(master=win, text='Color')
         self.preview_color_BUTTON = Button(master=win, text='Color',
                                            command=lambda: self.select_color(name="QRCode Color",
                                                                              entry=self.preview_color_ENTRY))
@@ -89,7 +70,7 @@ class MyWindow:
         self.preview_color_border_VAL = StringVar()
         self.preview_color_border_ENTRY = Entry(master=win, textvariable=self.preview_color_border_VAL, bd=3, width=10)
         self.preview_color_border_ENTRY.insert(0, self.qrcode_Border_Color)
-        # self.preview_color_border_LABEL = Label(master=win, text='Border Color')
+
         self.preview_color_border_BUTTON = Button(master=win, text='Border Color',
                                                   command=lambda: self.select_color(name="QRCode Boarder Color",
                                                                                     entry=self.preview_color_border_ENTRY))
@@ -97,7 +78,6 @@ class MyWindow:
         self.preview_color_background_ENTRY = Entry(master=win, textvariable=self.preview_color_background_VAL, bd=3,
                                                     width=10)
         self.preview_color_background_ENTRY.insert(0, self.qrcode_Background_Color)
-        # self.preview_color_background_LABEL = Label(master=win, text='Background Color')
         self.preview_color_background_BUTTON = Button(master=win, text='Background Color',
                                                       command=lambda: self.select_color(name="QRCode Background Color",
                                                                                         entry=self.preview_color_background_ENTRY))
@@ -111,15 +91,10 @@ class MyWindow:
         self.box_size_VAL = IntVar()
         self.box_size_ENTRY = Entry(master=win, textvariable=self.box_size_VAL, bd=3, width=10)
 
-        self.version_LABEL = Label(master=win, text='QR Code Version')
-        self.version_VAL = StringVar()
-        self.version_VAL.set(self.qr_code_versions[0])
-        self.version_OPTIONS = OptionMenu(win, self.version_VAL, *self.qr_code_versions)
-
         self.ecc_LABEL = Label(master=win, text='Error Correction')
         self.ecc_VAL = StringVar()
-        self.ecc_VAL.set(self.ecc[0])
-        self.ecc_OPTIONS = OptionMenu(win, self.ecc_VAL, *self.ecc)
+        self.ecc_VAL.set(self.qrcode.ecc[0])
+        self.ecc_OPTIONS = OptionMenu(win, self.ecc_VAL, *self.qrcode.ecc)
 
         self.preview_qrcode_LABEL = Label(master=win, text="QR Code Preview Display Here")
         self.preview_qrcode_obj = Label(master=win, text="")
@@ -285,13 +260,30 @@ class MyWindow:
 
 class QRCODE:
     def __int__(self):
-        pass
+        self.qr_code_versions = [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10"
+        ]
+
+        self.ecc = [
+            "L -> 7%",
+            "M -> 15%",
+            "Q -> 25%",
+            "H -> 30%"
+        ]
 
     def create_code(self, data: str, err: str, name: str, path: str, filetype: str, scale: int, border_width: int,
                     background_color: tuple[int, ...], border_color: tuple[int, ...], data_color: tuple[int, ...],
                     insert_image=False, image_path=None):
         if str.lower(filetype) == 'png' or str.lower(filetype) == 'jpg' or str.lower(filetype) == 'jpeg':
-            print(f"{path}/{name}.{filetype}")
             qr_code = segno.make_qr(content=data, error=err)
             qr_code.save(
                 out=f"{path}/{name}.{filetype}",
@@ -328,9 +320,13 @@ class QRCODE:
         im.save(qr_code_path, "PNG")
 
 
-window = Tk()
-mywin = MyWindow(window)
-window.title('Hello Python')
-window.geometry("650x500+10+10")
-# window.protocol("WM_DELETE_WINDOW", mywin.window_exit())
-window.mainloop()
+def main():
+    window = Tk()
+    mywin = MyWindow(window)
+    window.title('Hello Python')
+    window.geometry("650x500+10+10")
+    window.mainloop()
+
+
+if __name__ == '__main__':
+    main()
