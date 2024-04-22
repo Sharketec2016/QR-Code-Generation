@@ -16,7 +16,10 @@ def hex_to_rgb(hex: str):
         decimal = int(hex[i:i + 2], 16)
         rgb.append(decimal)
     return tuple(rgb)
+
+
 global my_img
+
 
 class MyWindow:
     def __init__(self, win):
@@ -201,30 +204,13 @@ class MyWindow:
                     os.remove("./path")
 
                 else:
-                    im = Image.open(tmp_img_save_path)
-                    im = im.convert("RGBA")
-                    logo = Image.open(self.insert_image_ENTRY.get())
 
-
-                    qr_shape = Image.open(tmp_img_save_path).size
-
-                    qr_mid_x = qr_shape[0] // 2
-                    qr_mid_y = qr_shape[1] // 2
-
-                    slices_x = qr_shape[0] // 11
-                    slices_y = qr_shape[1] // 11
-
-                    box = (qr_mid_x - slices_x, qr_mid_y - slices_y, qr_mid_x + slices_x, qr_mid_y + slices_y)
-                    im.crop(box)
-                    region = logo
-                    region = region.resize((box[2] - box[0], box[3] - box[1]))
-                    im.paste(region, box)
-                    im.save("path", "PNG")
-                    my_img = PhotoImage(file="path")
+                    self.qrcode.insert_custom_image(qr_code_path=tmp_img_save_path,
+                                                    image_path=self.insert_image_ENTRY.get())
+                    my_img = PhotoImage(file=tmp_img_save_path)
 
                     self.preview_qrcode_obj.config(image=my_img)  # Show the qr code in Label
                     self.insert_image_ENTRY.delete(0, END)
-                    os.remove("./path")
                 os.remove(tmp_img_save_path)
                 break
             except:
@@ -243,7 +229,6 @@ class MyWindow:
         entry.insert(0, colors[1])
 
     def save_qr_code(self):
-        # global save_img
 
         qrcode_data = self.data_ENTRY.get()
         qrcode_name = self.code_name_ENTRY.get()
@@ -264,7 +249,22 @@ class MyWindow:
             messagebox.showerror("Python Error", "Please provide a file path to save the QR Code at")
 
         try:
-            if self.insert_image_ENTRY.get() == "":
+
+            if self.insert_image_ENTRY.get() != "":
+                self.qrcode.create_code(data=qrcode_data,
+                                        err=ecc,
+                                        name=qrcode_name,
+                                        path=qrcode_save_path,
+                                        filetype='png' if self.file_type_VAL.get() == 1 else 'jpg',
+                                        scale=5,
+                                        border_width=10,
+                                        background_color=hex_to_rgb(background_color),
+                                        border_color=hex_to_rgb(border_color),
+                                        data_color=hex_to_rgb(data_color),
+                                        insert_image=True,
+                                        image_path=self.insert_image_ENTRY.get()
+                                        )
+            else:
                 self.qrcode.create_code(data=qrcode_data,
                                         err=ecc,
                                         name=qrcode_name,
@@ -277,6 +277,8 @@ class MyWindow:
                                         data_color=hex_to_rgb(data_color)
                                         )
 
+
+
         except:
             messagebox.showerror("Something went wrong. Please make sure all entry's are valid in form and try again")
 
@@ -286,9 +288,10 @@ class QRCODE:
         pass
 
     def create_code(self, data: str, err: str, name: str, path: str, filetype: str, scale: int, border_width: int,
-                    background_color: tuple[int, ...], border_color: tuple[int, ...], data_color: tuple[int, ...]):
+                    background_color: tuple[int, ...], border_color: tuple[int, ...], data_color: tuple[int, ...],
+                    insert_image=False, image_path=None):
         if str.lower(filetype) == 'png' or str.lower(filetype) == 'jpg' or str.lower(filetype) == 'jpeg':
-
+            print(f"{path}/{name}.{filetype}")
             qr_code = segno.make_qr(content=data, error=err)
             qr_code.save(
                 out=f"{path}/{name}.{filetype}",
@@ -298,8 +301,31 @@ class QRCODE:
                 quiet_zone=border_color,
                 dark=data_color
             )
+
+            if insert_image:
+                self.insert_custom_image(qr_code_path=f"{path}/{name}.{filetype}", image_path=image_path)
         else:
             raise ValueError()
+
+    def insert_custom_image(self, qr_code_path, image_path):
+        im = Image.open(qr_code_path)
+        im = im.convert("RGBA")
+        logo = Image.open(image_path)
+
+        qr_shape = Image.open(qr_code_path).size
+
+        qr_mid_x = qr_shape[0] // 2
+        qr_mid_y = qr_shape[1] // 2
+
+        slices_x = qr_shape[0] // 11
+        slices_y = qr_shape[1] // 11
+
+        box = (qr_mid_x - slices_x, qr_mid_y - slices_y, qr_mid_x + slices_x, qr_mid_y + slices_y)
+        im.crop(box)
+        region = logo
+        region = region.resize((box[2] - box[0], box[3] - box[1]))
+        im.paste(region, box)
+        im.save(qr_code_path, "PNG")
 
 
 window = Tk()
