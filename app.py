@@ -4,6 +4,13 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter.colorchooser import askcolor
 
+import customtkinter
+from customtkinter import *
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
+
+
 import segno
 from PIL import Image
 
@@ -16,11 +23,13 @@ def hex_to_rgb(hex: str):
         rgb.append(decimal)
     return tuple(rgb)
 
-
+'''
+#todo implement a function to determine the appropriate distance between buttons, entries, and labels. 
+'''
 global my_img
 
 
-class MyWindow:
+class UpdatedWindow:
     def __init__(self, win):
         self.insert_image = None
         self.win = win
@@ -40,102 +49,104 @@ class MyWindow:
         self.qrcode = QRCODE()
         self.qrcode.__int__()
 
-        self.code_name_FRAME = Frame(master=win).grid_configure(row=0, column=0)
-        self.code_name_LABEL = Label(master=self.code_name_FRAME, text="Name of QR Code")
-        self.code_name_ENTRY = Entry(master=win, bd=3)
+        self.code_name_FRAME = CTkFrame(master=win).grid_configure(row=0, column=0)
+        self.code_name_LABEL = CTkLabel(master=self.code_name_FRAME, text="Name of QR Code")
+        self.code_name_ENTRY = CTkEntry(master=win)
 
-        self.file_type_LABEL = Label(master=win, text="File Type")
+
+        self.file_type_LABEL = CTkLabel(master=win, text="File Type")
         self.file_type_VAL = IntVar()
-        self.file_type_RB1 = Radiobutton(master=win, text="PNG", variable=self.file_type_VAL, value=1)
-        self.file_type_RB2 = Radiobutton(master=win, text="JPEG", variable=self.file_type_VAL, value=2)
+        self.file_type_RB1 = CTkRadioButton(master=win, text="PNG", variable=self.file_type_VAL, value=1)
+        self.file_type_RB2 = CTkRadioButton(master=win, text="JPEG", variable=self.file_type_VAL, value=2)
 
-        self.save_file_path_LABEL = Label(master=win, text="File path to save QR Code")
+
+        self.save_file_path_LABEL = CTkLabel(master=win, text="File path to save QR Code")
         self.save_file_path_VAL = StringVar()
-        self.save_file_path_ENTRY = Entry(master=win, bd=3, textvariable=self.save_file_path_VAL)
-        self.save_file_path_BUTTON = Button(master=win, text='Save Path', command=lambda: self.grab_save_path())
+        self.save_file_path_ENTRY = CTkEntry(master=win, textvariable=self.save_file_path_VAL)
+        self.save_file_path_BUTTON = CTkButton(master=win, text='Save Path', command=lambda: self.grab_save_path())
 
-        self.data_LABEL = Label(master=win, text='Website to link QR Code')
+        self.data_LABEL = CTkLabel(master=win, text='Website to link QR Code')
         self.data_VAL = StringVar()
-        self.data_ENTRY = Entry(master=win, bd=3, textvariable=self.data_VAL)
+        self.data_ENTRY = CTkEntry(master=win,textvariable=self.data_VAL)
 
-        self.preview_BUTTON = Button(master=win, text='Preview', command=lambda: self.preview_code())
+        self.preview_BUTTON = CTkButton(master=win, text='Preview', command=lambda: self.preview_code())
 
         self.preview_color_VAL = StringVar()
-        self.preview_color_ENTRY = Entry(master=win, textvariable=self.preview_color_VAL, bd=3, width=10)
+        self.preview_color_ENTRY = CTkEntry(master=win, textvariable=self.preview_color_VAL,width=100)
         self.preview_color_ENTRY.insert(0, self.qrcode_color)
-        self.preview_color_BUTTON = Button(master=win, text='Color',
+        self.preview_color_BUTTON = CTkButton(master=win, text='Color',
                                            command=lambda: self.select_color(name="QRCode Color",
                                                                              entry=self.preview_color_ENTRY))
 
         self.preview_color_border_VAL = StringVar()
-        self.preview_color_border_ENTRY = Entry(master=win, textvariable=self.preview_color_border_VAL, bd=3, width=10)
+        self.preview_color_border_ENTRY = CTkEntry(master=win, textvariable=self.preview_color_border_VAL,width=100)
         self.preview_color_border_ENTRY.insert(0, self.qrcode_Border_Color)
 
-        self.preview_color_border_BUTTON = Button(master=win, text='Border Color',
+        self.preview_color_border_BUTTON = CTkButton(master=win, text='Border Color',
                                                   command=lambda: self.select_color(name="QRCode Boarder Color",
                                                                                     entry=self.preview_color_border_ENTRY))
         self.preview_color_background_VAL = StringVar()
-        self.preview_color_background_ENTRY = Entry(master=win, textvariable=self.preview_color_background_VAL, bd=3,
-                                                    width=10)
+        self.preview_color_background_ENTRY = CTkEntry(master=win, textvariable=self.preview_color_background_VAL,
+                                                    width=100)
         self.preview_color_background_ENTRY.insert(0, self.qrcode_Background_Color)
-        self.preview_color_background_BUTTON = Button(master=win, text='Background Color',
+        self.preview_color_background_BUTTON = CTkButton(master=win, text='Background Color',
                                                       command=lambda: self.select_color(name="QRCode Background Color",
                                                                                         entry=self.preview_color_background_ENTRY))
 
-        self.insert_image_LABEL = Label(master=win, text='Insert Image')
+        self.insert_image_LABEL = CTkLabel(master=win, text='Insert Image')
         self.insert_image_VAL = StringVar()
-        self.insert_image_ENTRY = Entry(master=win, textvariable=self.insert_image_VAL, bd=3, width=10)
-        self.insert_image_BUTTON = Button(master=win, text='Choose', command=lambda: self.select_insert_image())
+        self.insert_image_ENTRY = CTkEntry(master=win, textvariable=self.insert_image_VAL, width=100)
+        self.insert_image_BUTTON = CTkButton(master=win, text='Choose', command=lambda: self.select_insert_image(), width=40)
 
-        self.box_size_LABEL = Label(master=win, text='Box Size')
+        self.box_size_LABEL = CTkLabel(master=win, text='Box Size')
         self.box_size_VAL = IntVar()
-        self.box_size_ENTRY = Entry(master=win, textvariable=self.box_size_VAL, bd=3, width=10)
+        self.box_size_ENTRY = CTkEntry(master=win, textvariable=self.box_size_VAL, width=10)
 
-        self.ecc_LABEL = Label(master=win, text='Error Correction')
+        self.ecc_LABEL = CTkLabel(master=win, text='Error Correction')
         self.ecc_VAL = StringVar()
         self.ecc_VAL.set(self.qrcode.ecc[0])
-        self.ecc_OPTIONS = OptionMenu(win, self.ecc_VAL, *self.qrcode.ecc)
+        self.ecc_OPTIONS = CTkOptionMenu(master=win, variable=self.ecc_VAL, values=self.qrcode.ecc)
 
-        self.preview_qrcode_LABEL = Label(master=win, text="QR Code Preview Display Here")
-        self.preview_qrcode_obj = Label(master=win, text="")
+        self.preview_qrcode_LABEL = CTkLabel(master=win, text="QR Code Preview Display Here")
+        self.preview_qrcode_obj = CTkLabel(master=win, text="")
 
-        self.save_code_BUTTON = Button(master=win, text='Save QR Code', command=lambda: self.save_qr_code())
+        self.save_code_BUTTON = CTkButton(master=win, text='Save QR Code', command=lambda: self.save_qr_code())
 
         self.code_name_LABEL.place(x=50, y=50)
         self.code_name_ENTRY.place(x=160, y=50)
 
-        self.file_type_LABEL.place(x=300, y=50)
-        self.file_type_RB1.place(x=360, y=50)
-        self.file_type_RB2.place(x=410, y=50)
+        self.file_type_LABEL.place(x=320, y=50)
+        self.file_type_RB1.place(x=380, y=50)
+        self.file_type_RB2.place(x=440, y=50)
 
         self.save_file_path_LABEL.place(x=11, y=80)
         self.save_file_path_ENTRY.place(x=160, y=80)
-        self.save_file_path_BUTTON.place(x=300, y=80)
+        self.save_file_path_BUTTON.place(x=320, y=80)
 
         self.data_LABEL.place(x=17, y=110)
         self.data_ENTRY.place(x=160, y=110)
 
-        self.preview_BUTTON.place(x=60, y=130)
-        self.preview_color_BUTTON.place(x=20, y=170)
-        self.preview_color_ENTRY.place(x=130, y=170)
+        self.preview_BUTTON.place(x=60, y=145)
+        self.preview_color_BUTTON.place(x=20, y=200)
+        self.preview_color_ENTRY.place(x=170, y=200)
 
-        self.preview_color_border_BUTTON.place(x=20, y=200)
-        self.preview_color_border_ENTRY.place(x=130, y=200)
+        self.preview_color_border_BUTTON.place(x=20, y=230)
+        self.preview_color_border_ENTRY.place(x=170, y=230)
 
-        self.preview_color_background_BUTTON.place(x=20, y=230)
-        self.preview_color_background_ENTRY.place(x=130, y=230)
+        self.preview_color_background_BUTTON.place(x=20, y=260)
+        self.preview_color_background_ENTRY.place(x=170, y=260)
 
-        self.insert_image_LABEL.place(x=20, y=260)
-        self.insert_image_ENTRY.place(x=130, y=260)
-        self.insert_image_BUTTON.place(x=200, y=260)
+        self.insert_image_LABEL.place(x=20, y=290)
+        self.insert_image_ENTRY.place(x=130, y=290)
+        self.insert_image_BUTTON.place(x=240, y=290)
 
-        self.ecc_LABEL.place(x=20, y=290)
-        self.ecc_OPTIONS.place(x=130, y=290)
+        self.ecc_LABEL.place(x=20, y=320)
+        self.ecc_OPTIONS.place(x=130, y=320)
 
         self.preview_qrcode_LABEL.place(x=300, y=170)
         self.preview_qrcode_obj.place(x=300, y=190)
 
-        self.save_code_BUTTON.place(x=60, y=320)
+        self.save_code_BUTTON.place(x=60, y=350)
 
     def grab_save_path(self):
         curr_dir = filedialog.askdirectory()
@@ -175,7 +186,7 @@ class MyWindow:
                     img = img.convert("RGBA")
                     img.save("path", "PNG")
                     my_img = PhotoImage(file="path")
-                    self.preview_qrcode_obj.config(image=my_img)
+                    self.preview_qrcode_obj.configure(image=my_img)
                     os.remove("./path")
 
                 else:
@@ -184,8 +195,7 @@ class MyWindow:
                                                     image_path=self.insert_image_ENTRY.get())
                     my_img = PhotoImage(file=tmp_img_save_path)
 
-                    self.preview_qrcode_obj.config(image=my_img)  # Show the qr code in Label
-                    self.insert_image_ENTRY.delete(0, END)
+                    self.preview_qrcode_obj.configure(image=my_img)  # Show the qr code in Label
                 os.remove(tmp_img_save_path)
                 break
             except:
@@ -258,6 +268,9 @@ class MyWindow:
             messagebox.showerror("Something went wrong. Please make sure all entry's are valid in form and try again")
 
 
+
+
+
 class QRCODE:
     def __int__(self):
         self.qr_code_versions = [
@@ -321,11 +334,19 @@ class QRCODE:
 
 
 def main():
-    window = Tk()
-    mywin = MyWindow(window)
-    window.title('Hello Python')
+    # window = Tk()
+    # mywin = MyWindow(window)
+    # window.title('Hello Python')
+    # window.geometry("650x500+10+10")
+    # window.mainloop()
+    #----------------------------
+    window = CTk()
+    mywin = UpdatedWindow(window)
+    window.title("Hello Python")
     window.geometry("650x500+10+10")
     window.mainloop()
+
+
 
 
 if __name__ == '__main__':
